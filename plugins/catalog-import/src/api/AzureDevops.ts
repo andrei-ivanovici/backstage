@@ -18,7 +18,7 @@ import { ScmAuthApi } from '@backstage/integration-react';
 import { ConfigApi } from '@backstage/core-plugin-api';
 import { getBranchName, getCatalogFilename } from '../components/helpers';
 import { createAzurePullRequest } from './AzureRepoApiClient';
-import parseGitUrl from 'git-url-parse';
+import { parseRepoUrl } from './util';
 
 export interface AzureRepoParts {
   tenantUrl: string;
@@ -30,9 +30,15 @@ export function parseAzureUrl(
   repoUrl: string,
   integration: AzureIntegration,
 ): AzureRepoParts {
-  const { organization, owner, name } = parseGitUrl(repoUrl);
-  const tenantUrl = `https://${integration.config.host}/${organization}`;
-  return { tenantUrl, repoName: name, project: owner };
+  const { org, repo, project } = parseRepoUrl(repoUrl);
+  if (!org || !repo || !project) {
+    throw new Error(
+      'Invalid AzureDevops Repository. Please use a valid repository url and try again ',
+    );
+  }
+  const tenantUrl = `https://${integration.config.host}/${org}`;
+
+  return { tenantUrl, repoName: repo, project: project };
 }
 
 export async function submitAzurePrToRepo(
