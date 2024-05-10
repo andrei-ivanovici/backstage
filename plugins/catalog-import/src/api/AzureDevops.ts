@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AzureIntegration } from '@backstage/integration';
 import { ScmAuthApi } from '@backstage/integration-react';
 import { ConfigApi } from '@backstage/core-plugin-api';
 import { getBranchName, getCatalogFilename } from '../components/helpers';
@@ -26,23 +25,19 @@ export interface AzureRepoParts {
   project: string;
 }
 
-export function parseAzureUrl(
-  repoUrl: string,
-  integration: AzureIntegration,
-): AzureRepoParts {
-  const { org, repo, project } = parseRepoUrl(repoUrl);
+export function parseAzureUrl(repoUrl: string): AzureRepoParts {
+  const { org, repo, project, host } = parseRepoUrl(repoUrl);
   if (!org || !repo || !project) {
     throw new Error(
       'Invalid AzureDevops Repository. Please use a valid repository url and try again ',
     );
   }
-  const tenantUrl = `https://${integration.config.host}/${org}`;
+  const tenantUrl = `https://${host}/${org}`;
 
   return { tenantUrl, repoName: repo, project: project };
 }
 
 export async function submitAzurePrToRepo(
-  integration: AzureIntegration,
   options: {
     title: string;
     body: string;
@@ -63,10 +58,7 @@ export async function submitAzurePrToRepo(
       repoWrite: true,
     },
   });
-  const { tenantUrl, repoName, project } = parseAzureUrl(
-    repositoryUrl,
-    integration,
-  );
+  const { tenantUrl, repoName, project } = parseAzureUrl(repositoryUrl);
   const result = await createAzurePullRequest({
     token,
     fileContent,
