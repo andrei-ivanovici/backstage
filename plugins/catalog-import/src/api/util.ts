@@ -13,28 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export function parseRepoUrl(sourceUrl: string) {
-  const url = new URL(sourceUrl);
-
-  let host = url.host;
-  let org;
-  let project;
-  let repo;
-
-  const parts = url.pathname.split('/').map(part => decodeURIComponent(part));
-  if (parts[2] === '_git') {
-    org = parts[1];
-    project = repo = parts[3];
-  } else if (parts[3] === '_git') {
-    org = parts[1];
-    project = parts[2];
-    repo = parts[4];
-  } else if (parts[4] === '_git') {
-    host = `${host}/${parts[1]}`;
-    org = parts[2];
-    project = parts[3];
-    repo = parts[5];
-  }
-
-  return { host, org, project, repo };
-}
